@@ -31,19 +31,32 @@ object GradleGenerator {
 
   private fun generateAppBuildGradle() = generateBuildGradle {
     plugin("com.android.application")
+    emptyLine()
     android {
+      compileSdkVersion("versions.COMPILE_SDK")
+      buildToolsVersion("versions.BUILD_TOOLS")
+      emptyLine()
       defaultConfig {
-
+        applicationId("com.example")
+        minSdkVersion("versions.MIN_SDK")
+        targetSdkVersion("versions.TARGET_SDK")
+        versionCode(1)
+        versionName("1.0")
       }
+      emptyLine()
       buildTypes {
-
-      }
-      sourceSets {
-
+        release {
+          minifyEnabled(false)
+          proguardFiles("proguard-rules.pro")
+        }
       }
     }
+    emptyLine()
     dependencies {
-
+      compile("com.android.support:support-v4:\$versions.ANDROID_SUPPORT")
+      compile("com.android.support:appcompat-v7:\$versions.ANDROID_SUPPORT")
+      compile("com.android.support:recyclerview-v7:\$versions.ANDROID_SUPPORT")
+      compile("com.android.support:design-v7:\$versions.ANDROID_SUPPORT")
     }
   }.toString()
 }
