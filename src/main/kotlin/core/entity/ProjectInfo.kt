@@ -15,4 +15,13 @@ class ProjectInfo {
 
   var projectLocation by property<String>()
   fun projectLocationProperty() = getProperty(ProjectInfo::projectLocation)
+
+  var minSdk by property<String>()
+  fun minSdkProperty() = getProperty(ProjectInfo::minSdk)
+
+  var projectRoot = ""
+  var androidTestRoot = ""
+  var mainRoot = ""
+  var testRoot = ""
+  var srcDir = ""
 }
