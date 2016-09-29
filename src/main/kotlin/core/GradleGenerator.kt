@@ -1,35 +1,47 @@
 package core
 
-import core.PackageGenerator.projectRoot
+import core.entity.ProjectInfo
 import util.generateBuildGradle
 import java.io.File
 
-object GradleGenerator {
+class GradleGenerator {
 
-  fun createRootBuildFile() {
-    File("$projectRoot/build.gradle").writeText(generateRootBuildGradle())
+  fun createRootBuildFile(info: ProjectInfo) {
+    File("${info.projectRoot}/build.gradle").writeText(generateRootBuildGradle(info))
   }
 
-  fun createAppBuildGradle() {
-    File("$projectRoot/app/build.gradle").writeText(generateAppBuildGradle())
+  fun createAppBuildGradle(info: ProjectInfo) {
+    File("${info.projectRoot}/app/build.gradle").writeText(generateAppBuildGradle(info))
   }
 
-  private fun generateRootBuildGradle() = generateBuildGradle {
+  private fun generateRootBuildGradle(info: ProjectInfo) = generateBuildGradle {
     buildscript {
       repositories {
         repository("jcenter")
       }
 
       dependencies {
-        classpath("com.android.tools.build:gradle:2.1.3")
+        classpath("com.android.tools.build:gradle:2.2.0")
       }
     }
+    emptyLine()
     allprojects {
-      repository("jcenter")
+      repositories {
+        repository("jcenter")
+      }
     }
+    emptyLine()
+    variable("ext.versions", generateVersionsMap(info))
   }.toString()
 
-  private fun generateAppBuildGradle() = generateBuildGradle {
+  private fun generateVersionsMap(info: ProjectInfo) = mapOf(
+      "COMPILE_SDK" to 24,
+      "MIN_SDK" to info.minSdk.substring(4..5), // simple way?
+      "TARGET_SDK" to 24,
+      "BUILD_TOOLS" to "\"23.0.3\"",
+      "ANDROID_SUPPORT" to "\"24.2.0\"")
+
+  private fun generateAppBuildGradle(info: ProjectInfo) = generateBuildGradle {
     plugin("com.android.application")
     emptyLine()
     android {
@@ -37,7 +49,7 @@ object GradleGenerator {
       buildToolsVersion("versions.BUILD_TOOLS")
       emptyLine()
       defaultConfig {
-        applicationId("com.example")
+        applicationId(info.packageName)
         minSdkVersion("versions.MIN_SDK")
         targetSdkVersion("versions.TARGET_SDK")
         versionCode(1)
@@ -56,7 +68,7 @@ object GradleGenerator {
       compile("com.android.support:support-v4:\$versions.ANDROID_SUPPORT")
       compile("com.android.support:appcompat-v7:\$versions.ANDROID_SUPPORT")
       compile("com.android.support:recyclerview-v7:\$versions.ANDROID_SUPPORT")
-      compile("com.android.support:design-v7:\$versions.ANDROID_SUPPORT")
+      compile("com.android.support:design:\$versions.ANDROID_SUPPORT")
     }
   }.toString()
 }

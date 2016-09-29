@@ -21,11 +21,23 @@ class BuildGradle : Tag() {
   fun plugin(name: String) = initTag(Parameter("apply plugin:" to "'$name'"))
   fun android(init: Android.() -> Unit) = initTag(Android(), init)
   fun dependencies(init: Dependencies.() -> Unit) = initTag(Dependencies(), init)
+  fun variable(name: String, value: Any) = initTag(Value(name to value))
 }
 
 class EmptyLine() : Element {
   override fun render(builder: StringBuilder, indent: String) {
     builder.append("\n")
+  }
+}
+
+class Value(val variable: Pair<String, Any>) : Element {
+  override fun render(builder: StringBuilder, indent: String) {
+    builder.append("$indent${variable.first} = ${getValue(variable.second)}")
+  }
+
+  private fun getValue(value: Any) = when (value) {
+    is Map<*, *> -> StringBuilder("[\n").apply { value.entries.forEach { append("\t${it.key} : ${it.value},\n") }}.append("]").toString()
+    else         -> ""
   }
 }
 
@@ -63,7 +75,7 @@ class Dependencies : Tag("dependencies") {
 }
 
 class AllProjects : Tag("allprojects") {
-  fun repository(name: String, init: Method.() -> Unit = {}) = initTag(Method(name), init)
+  fun repositories(init: Repositories.() -> Unit) = initTag(Repositories(), init)
 }
 
 class Android : Tag("android") {
