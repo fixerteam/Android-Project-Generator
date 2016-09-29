@@ -3,6 +3,7 @@ package ui.project_info
 import core.ProjectGenerator.createProject
 import core.entity.ProjectInfo
 import javafx.collections.FXCollections
+import javafx.scene.control.Alert
 import tornadofx.*
 import ui.GeneratorApp.Companion.APP_NAME
 
@@ -17,13 +18,7 @@ class ProjectInfoView : View() {
     with(root) {
       fieldset("Project info") {
         field("App Name:") {
-          textfield().bind(projectInfo.appNameProperty())
-        }
-        field("Company domain:") {
-          textfield {
-            promptText = "example.com"
-            bind(projectInfo.companyDomainProperty())
-          }
+          textfield(projectInfo.appNameProperty())
         }
         field("Package name:") {
           textfield {
@@ -55,10 +50,16 @@ class ProjectInfoView : View() {
         }
       }
 
-      button("Next") {
+      button("Generate") {
         setOnAction {
           createProject(projectInfo)
+          alert(Alert.AlertType.INFORMATION, "", "Project created on path\n ${projectInfo.projectLocation}")
         }
+
+        disableProperty().bind(projectInfo.appNameProperty().isNull
+            .or(projectInfo.packageNameProperty().isNull
+                .or(projectInfo.projectLocationProperty().isNull
+                    .or(projectInfo.minSdkProperty().isNull))))
       }
     }
   }
