@@ -2,8 +2,6 @@ package ui.project_info
 
 import core.PackageGenerator
 import core.entity.ProjectInfo
-import javafx.scene.Parent
-import javafx.scene.layout.BorderPane
 import tornadofx.*
 import ui.GeneratorApp.Companion.APP_NAME
 
