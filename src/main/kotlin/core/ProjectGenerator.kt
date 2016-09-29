@@ -7,6 +7,7 @@ object ProjectGenerator {
   val packageGenerator = PackageGenerator()
   val gradleGenerator = GradleGenerator()
   val manifestGenerator = ManifestGenerator()
+  val resourceGenerator = ResourceGenerator()
 
   fun createProject(info: ProjectInfo) {
     with(info) {
@@ -18,6 +19,7 @@ object ProjectGenerator {
       packageGenerator.createPackageStructure(this)
       gradleGenerator.createRootBuildFile(this)
       gradleGenerator.createAppBuildGradle(this)
+      resourceGenerator.createResourceFolders(info)
       manifestGenerator.createAndroidManifest(this)
     }
   }
