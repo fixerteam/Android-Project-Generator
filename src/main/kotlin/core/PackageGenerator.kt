@@ -4,29 +4,26 @@ import core.entity.ProjectInfo
 import java.io.File
 import java.io.FileNotFoundException
 
-object PackageGenerator {
+class PackageGenerator {
 
-  const val GRADLE_FILES_DIR = "src/main/gradleFiles/"
-
-  var projectRoot = ""
-  var androidTestRoot = ""
-  var mainRoot = ""
-  var testRoot = ""
-
-  fun createProject(info: ProjectInfo) {
-    createBaseProjectFolder(info)
-    addGradleWrappers()
-    addAppModule()
-    addPackages(info)
+  companion object {
+    @JvmStatic val GRADLE_FILES_DIR = "src/main/gradleFiles/"
   }
 
-  private fun createBaseProjectFolder(info: ProjectInfo) {
+  fun createPackageStructure(info: ProjectInfo) {
     with(info) {
-      projectRoot = createFolders("$projectLocation/$appName").path
+      createBaseProjectFolder(projectRoot)
+      addGradleWrappers(projectRoot)
+      addAppModule(this)
+      addPackages(this)
     }
   }
 
-  private fun addGradleWrappers() {
+  private fun createBaseProjectFolder(projectRoot: String) {
+    createFolders(projectRoot)
+  }
+
+  private fun addGradleWrappers(projectRoot: String) {
     try {
       File(GRADLE_FILES_DIR).copyRecursively(File(projectRoot), true)
     } catch (e: FileNotFoundException) {
@@ -34,20 +31,22 @@ object PackageGenerator {
     }
   }
 
-  private fun addAppModule() {
-    createFolders("$projectRoot/app/src/").path.apply {
-      androidTestRoot = createFolders("$this/androidTest").path
-      mainRoot = createFolders("$this/main").path
-      testRoot = createFolders("$this/test").path
+  private fun addAppModule(info: ProjectInfo) {
+    with(info) {
+      createFolders("$srcDir/androidTest")
+      createFolders("$srcDir/main")
+      createFolders("$srcDir/test")
+      createFile("$projectRoot/settings.gradle").writeText("include ':app'")
     }
-    createFile("$projectRoot/settings.gradle").writeText("include ':app'")
   }
 
   private fun addPackages(info: ProjectInfo) {
     val escapedPackage = replaceDots(info.packageName).trim()
-    createFolders("$androidTestRoot/java/$escapedPackage")
-    createFolders("$mainRoot/java/$escapedPackage")
-    createFolders("$testRoot/java/$escapedPackage")
+    with(info) {
+      createFolders("$androidTestRoot/java/$escapedPackage")
+      createFolders("$mainRoot/java/$escapedPackage")
+      createFolders("$testRoot/java/$escapedPackage")
+    }
   }
 
   private fun createFolders(path: String) = File(path).apply { mkdirs() }
