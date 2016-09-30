@@ -1,13 +1,13 @@
 package core
 
 import core.entity.ProjectInfo
+import util.unzip
 import java.io.File
-import java.io.FileNotFoundException
 
 class PackageGenerator {
 
   companion object {
-    @JvmStatic val GRADLE_FILES_DIR = "src/main/gradleFiles/"
+    @JvmStatic val GRADLE_FILES_ZIP = "gradleFiles.zip"
   }
 
   fun createPackageStructure(info: ProjectInfo) {
@@ -24,11 +24,7 @@ class PackageGenerator {
   }
 
   private fun addGradleWrappers(projectRoot: String) {
-    try {
-      File(GRADLE_FILES_DIR).copyRecursively(File(projectRoot), true)
-    } catch (e: FileNotFoundException) {
-      e.printStackTrace()
-    }
+    unzip(GRADLE_FILES_ZIP, projectRoot)
   }
 
   private fun addAppModule(info: ProjectInfo) {
