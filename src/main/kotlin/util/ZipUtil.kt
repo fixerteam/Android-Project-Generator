@@ -1,7 +1,9 @@
 package util
 
 import ui.GeneratorApp
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.nio.file.FileSystems
 import java.nio.file.Files.createDirectories
 import java.nio.file.Files.createFile
@@ -10,7 +12,8 @@ import java.util.zip.ZipFile
 fun unzip(filename: String, destFolder: String) {
   val dest = destFolder + "/"
   val rootDir = filename.replace(".zip", "/")
-  val zipFile = ZipFile(File(exportResource(filename)))
+  val tmpFile = File(exportResource(filename))
+  val zipFile = ZipFile(tmpFile)
   val fileSystem = FileSystems.getDefault()
   val entries = zipFile.entries()
 
@@ -28,12 +31,18 @@ fun unzip(filename: String, destFolder: String) {
       }
     }
   }
+  zipFile.close()
+  tmpFile.delete()
 }
 
 fun exportResource(resourceName: String): String {
   val stream = GeneratorApp::class.java.classLoader.getResourceAsStream(resourceName)
-  val jarFolder = File(GeneratorApp::class.java.protectionDomain.codeSource.location.toURI().path).parentFile.path.replace('\\', '/')
-  val resStreamOut = FileOutputStream(jarFolder + resourceName)
+  val filePath = "${getResourcePath()}/$resourceName"
+  val resStreamOut = FileOutputStream(filePath)
   stream.copyTo(resStreamOut)
-  return jarFolder + resourceName
+  return filePath
 }
+
+private fun getResourcePath() = File(
+    GeneratorApp::class.java.protectionDomain.codeSource.location.toURI().path)
+    .parentFile.path.replace('\\', '/')
